@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0c1410" />
+  <title>Rancho Aparte · CRM</title>
+  <meta name="description" content="Sistema de gestión integral para Rancho Aparte — complejo de canchas de fútbol en Ituzaingó." />
+
+  <!-- Tipografías -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="assets/logo/logo.svg" type="image/svg+xml" />
+</head>
+<body>
+
+  <!-- ============================= SIDEBAR / NAV ============================= -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 48 48" width="34" height="34" aria-hidden="true">
+          <circle cx="24" cy="24" r="22" fill="#14361f" stroke="#3fae5a" stroke-width="2"/>
+          <path d="M24 9l4.5 3.3-1.7 5.3h-5.6l-1.7-5.3L24 9zM12.5 19.5l5.3.2 1.6 5.2-4.5 3.3-4.3-3.2 1.9-5.5zm23 0l1.9 5.5-4.3 3.2-4.5-3.3 1.6-5.2 5.3-.2zM18 32.5l3.7-2.6h4.6l3.7 2.6-1.6 5.1-4.4 1.4-4.4-1.4-1.6-5.1z" fill="#3fae5a"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <strong>Rancho Aparte</strong>
+        <span>Gestión de Canchas</span>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-view="dashboard"><span class="ni">▣</span> Dashboard</button>
+      <button class="nav-item" data-view="reservas"><span class="ni">◷</span> Reservas</button>
+      <button class="nav-item" data-view="calendario"><span class="ni">▤</span> Calendario</button>
+      <button class="nav-item" data-view="clientes"><span class="ni">☻</span> Clientes</button>
+      <button class="nav-item" data-view="finanzas"><span class="ni">$</span> Finanzas</button>
+      <button class="nav-item" data-view="eventos"><span class="ni">★</span> Eventos</button>
+      <button class="nav-item" data-view="reportes"><span class="ni">◔</span> Reportes</button>
+      <button class="nav-item" data-view="config"><span class="ni">⚙</span> Configuración</button>
+    </nav>
+
+    <div class="sidebar-foot">
+      <span>v1.0 · Local</span>
+    </div>
+  </aside>
+
+  <!-- ============================= TOPBAR (mobile) ============================= -->
+  <header class="topbar">
+    <button class="hamb" id="hambBtn" aria-label="Menú">☰</button>
+    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    <button class="btn-primary btn-quick" id="quickReserva">+ Reserva</button>
+  </header>
+
+  <div class="scrim" id="scrim"></div>
+
+  <!-- ============================= MAIN ============================= -->
+  <main class="main" id="main"></main>
+
+  <!-- ============================= MODAL HOST ============================= -->
+  <div class="modal-host" id="modalHost" hidden>
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-card" id="modalCard" role="dialog" aria-modal="true"></div>
+  </div>
+
+  <!-- ============================= TOAST ============================= -->
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <!-- ============================= BOTTOM NAV (mobile) ============================= -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="bn-item active" data-view="dashboard"><span>▣</span>Inicio</button>
+    <button class="bn-item" data-view="reservas"><span>◷</span>Reservas</button>
+    <button class="bn-item bn-fab" id="bnFab"><span>+</span></button>
+    <button class="bn-item" data-view="calendario"><span>▤</span>Agenda</button>
+    <button class="bn-item" data-view="finanzas"><span>$</span>Caja</button>
+  </nav>
+
+  <script src="script.js"></script>
+</body>
+</html>

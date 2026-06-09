@@ -1,0 +1,11 @@
+# Backups locales del CRM
+*-backup-*.json
+
+# Sistema operativo
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Editores
+.vscode/
+.idea/
