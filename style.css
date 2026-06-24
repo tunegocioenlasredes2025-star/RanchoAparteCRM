@@ -36,9 +36,14 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
+
+/* El scroll vertical lo maneja el viewport (documentElement), NO el body.
+   Si el body es height:100% + overflow:auto, iOS rebota al hacer scroll.
+   overflow-x:hidden va en html para contener el ancho sin atrapar el scroll. */
+html { height: 100%; overflow-x: hidden; }
 
 body {
+  min-height: 100%;
   font-family: var(--font);
   background:
     radial-gradient(1200px 600px at 80% -10%, #133420 0%, transparent 55%),
@@ -47,7 +52,6 @@ body {
   color: var(--txt);
   -webkit-font-smoothing: antialiased;
   line-height: 1.45;
-  overflow-x: hidden;
 }
 
 ::selection { background: var(--green); color: #062; }
