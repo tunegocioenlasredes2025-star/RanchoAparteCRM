@@ -485,3 +485,105 @@ canvas { display: block; max-width: 100%; }
   .modal-foot:not(.spread) > button { flex: 1; justify-content: center; min-height: 46px; }
 }
 @keyframes sheetUp { from { opacity: .4; transform: translateY(100%); } to { opacity: 1; transform: none; } }
+
+/* ============================================================
+   TOGGLE DE TEMA (claro / oscuro)
+   ============================================================ */
+.theme-toggle {
+  background: var(--panel-2); border: 1px solid var(--line); color: var(--txt-soft);
+  width: 40px; height: 40px; border-radius: 11px; cursor: pointer;
+  display: inline-grid; place-items: center; transition: background .16s, color .16s, border-color .16s;
+  flex-shrink: 0;
+}
+.theme-toggle:hover { color: var(--txt); border-color: var(--green-soft); }
+.theme-toggle svg { width: 19px; height: 19px; }
+.theme-toggle .ic-sun { display: none; }
+:root[data-theme="light"] .theme-toggle .ic-sun { display: block; }
+:root[data-theme="light"] .theme-toggle .ic-moon { display: none; }
+/* Variante dentro del sidebar (fila inferior) */
+.sidebar-foot .theme-toggle { width: auto; height: auto; padding: 9px 11px; gap: 8px;
+  display: inline-flex; align-items: center; font-size: 12.5px; font-weight: 600; font-family: var(--font); }
+
+html, body { transition: background-color .25s ease; }
+
+/* ============================================================
+   TEMA CLARO — premium, estilo Linear/Notion
+   Se activa con data-theme="light" en <html>.
+   ============================================================ */
+:root[data-theme="light"] {
+  --bg:        #eef2ee;
+  --bg-2:      #ffffff;
+  --panel:     #ffffff;
+  --panel-2:   #f5f8f5;
+  --panel-hi:  #e9f1eb;
+  --line:      #e1e8e2;
+  --line-soft: #edf1ed;
+
+  --green:      #2f9d4d;
+  --green-soft: #3fae5a;
+  --green-deep: #e3f4e8;   /* tinte claro para fondos de íconos */
+  --blue:       #2b6fb0;
+  --blue-deep:  #e7f0fa;
+  --amber:      #b4791b;
+  --red:        #c0392b;
+
+  --txt:      #16231b;
+  --txt-soft: #46544b;
+  --txt-dim:  #76867b;
+
+  --shadow:    0 14px 34px rgba(20,45,28,.12);
+  --shadow-sm: 0 4px 14px rgba(20,45,28,.07);
+}
+
+/* Fondo de página */
+:root[data-theme="light"] body {
+  background:
+    radial-gradient(1200px 600px at 80% -10%, #dff0e4 0%, transparent 55%),
+    radial-gradient(900px 500px at -10% 110%, #e3edf6 0%, transparent 50%),
+    var(--bg);
+}
+/* Sidebar y barras */
+:root[data-theme="light"] .sidebar { background: linear-gradient(180deg, #ffffff 0%, #f4f8f5 100%); }
+:root[data-theme="light"] .topbar { background: rgba(255,255,255,.85); }
+:root[data-theme="light"] .bottom-nav { background: rgba(255,255,255,.94); }
+:root[data-theme="light"] ::-webkit-scrollbar-thumb { background: #cdd8cf; }
+:root[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #b9c7bc; }
+:root[data-theme="light"] ::selection { background: var(--green); color: #fff; }
+
+/* Estados activos que en oscuro usaban texto blanco sobre verde oscuro:
+   en claro hay que volver a un verde sólido para que el texto se lea. */
+:root[data-theme="light"] .nav-item.active {
+  background: linear-gradient(90deg, #d8f0df, transparent);
+  color: #14622f; box-shadow: inset 2px 0 0 var(--green);
+}
+:root[data-theme="light"] .nav-item.active .ni { color: var(--green); }
+:root[data-theme="light"] .seg button.active { background: var(--green); color: #fff; }
+:root[data-theme="light"] .bn-item.active { color: var(--green); }
+
+/* Íconos de KPI con fondo oscuro hardcodeado → tinte claro */
+:root[data-theme="light"] .kpi .k-ico.amber { background: #faf0d7; color: var(--amber); }
+:root[data-theme="light"] .kpi .k-ico.blue  { background: var(--blue-deep); color: var(--blue); }
+
+/* Botones con fondos oscuros hardcodeados */
+:root[data-theme="light"] .btn-danger { background: #fdecec; color: #c0392b; border-color: #f5ccca; }
+:root[data-theme="light"] .btn-danger:hover { background: #fbdedd; }
+:root[data-theme="light"] .btn-wa { background: #e4f6ec; color: #1f8a4c; border-color: #bfe6cd; }
+:root[data-theme="light"] .btn-wa:hover { background: #d6f0e0; }
+:root[data-theme="light"] .btn-primary { box-shadow: 0 6px 16px rgba(47,157,77,.22); }
+
+/* Chips de cancha: en claro, tinte suave con texto oscuro */
+:root[data-theme="light"] .court-chip { background: #e3f4e8; color: #1f7a3c; border-color: #c4e6cf; }
+:root[data-theme="light"] .court-chip.f7 { background: #e7f0fa; color: #1f5a86; border-color: #c6dcf0; }
+:root[data-theme="light"] .court-chip.f8 { background: #faf0d7; color: #8a6312; border-color: #ecd9a8; }
+
+/* Avatares e íconos con fondo verde-deep mantienen buen contraste */
+:root[data-theme="light"] .mini-avatar,
+:root[data-theme="light"] .kpi .k-ico { color: var(--green); }
+
+/* Eventos del calendario: versión clara legible */
+:root[data-theme="light"] .ev.s-conf, :root[data-theme="light"] .wk-ev.s-conf { background: #dff2e5; border-color: #b7e0c4; color: #1c6e38; }
+:root[data-theme="light"] .ev.s-pend, :root[data-theme="light"] .wk-ev.s-pend { background: #fbf1d8; border-color: #e8d39a; color: #8a6312; }
+:root[data-theme="light"] .ev.s-canc, :root[data-theme="light"] .wk-ev.s-canc { background: #fbe4e3; border-color: #efc2c0; color: #b23b36; }
+:root[data-theme="light"] .ev.s-fin,  :root[data-theme="light"] .wk-ev.s-fin  { background: #e2eefa; border-color: #bcd6ef; color: #235c89; }
+
+/* Toast e inputs ya usan variables, quedan bien automáticamente */

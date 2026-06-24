@@ -254,6 +254,16 @@ document.getElementById('bottomNav').addEventListener('click', e => {
 document.getElementById('quickReserva').addEventListener('click', () => openReservaForm());
 document.getElementById('bnFab').addEventListener('click', () => openReservaForm());
 
+// Tema claro / oscuro
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  const next = cur === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('rancho_theme', next);
+}
+document.getElementById('themeToggleTop')?.addEventListener('click', toggleTheme);
+document.getElementById('themeToggleSide')?.addEventListener('click', toggleTheme);
+
 /* ============================================================
    7. VISTAS
    ============================================================ */
