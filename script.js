@@ -299,7 +299,7 @@ function renderDashboard() {
   const main = document.getElementById('main');
   main.innerHTML = `
     <div class="view-head">
-      <div><h1>Hola, Rancho Aparte 👋</h1><p>${fmtFechaLarga(hoy)} · Resumen operativo</p></div>
+      <div><h1>Hola, Rancho Aparte</h1><p>${fmtFechaLarga(hoy)} · Resumen operativo</p></div>
       <div class="actions"><button class="btn-primary" onclick="openReservaForm()">+ Nueva reserva</button></div>
     </div>
 

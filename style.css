@@ -421,7 +421,63 @@ canvas { display: block; max-width: 100%; }
   .kpi .k-val { font-size: 22px; }
   .field-row, .field-row-3 { grid-template-columns: 1fr; }
   .view-head { margin-bottom: 18px; }
-  .modal-card { max-height: 94vh; }
   .day-grid { grid-template-columns: 46px 1fr; }
   .btn-quick { display: none; }
 }
+
+/* ============================================================
+   MOBILE — calendario, modales y targets táctiles
+   (Fase 1 · mobile-first)
+   ============================================================ */
+@media (max-width: 860px) {
+  /* Scroll horizontal con inercia en tablas y calendario */
+  .table-wrap { -webkit-overflow-scrolling: touch; scrollbar-width: thin; }
+
+  /* El overflow:hidden de estos grids rompe el position:sticky del gutter.
+     En mobile lo liberamos para que la columna de horas se ancle al scroll. */
+  .week-grid, .day-grid, .day-court-head { overflow: visible; }
+
+  /* Columna de horas SIEMPRE visible al deslizar el calendario (vista día) */
+  .day-court-head .corner,
+  .hour-col {
+    position: sticky; left: 0; z-index: 6;
+    background: var(--bg-2);
+    box-shadow: 1px 0 0 var(--line);
+  }
+
+  /* Vista semana: gutter de horas + esquina fijos al deslizar */
+  .week-grid .wk-head:first-child,
+  .week-grid .wk-hour {
+    position: sticky; left: 0; z-index: 6;
+    background: var(--bg-2);
+    box-shadow: 1px 0 0 var(--line);
+  }
+
+  /* Toolbar del calendario: la fecha no empuja los botones fuera */
+  .cal-date { min-width: 0; flex: 1 1 100%; font-size: 15px; order: 3; }
+  .cal-toolbar .actions { margin-left: auto; }
+
+  /* Targets táctiles cómodos (mín. ~44px) */
+  .seg button { min-height: 42px; }
+  .btn-sm { min-height: 40px; }
+  .nav-item { padding: 13px 13px; }
+}
+
+@media (max-width: 520px) {
+  /* Modales como bottom-sheet: suben desde abajo, botón principal al alcance del pulgar */
+  .modal-host { align-items: flex-end; padding: 0; }
+  .modal-card {
+    max-width: none; width: 100%;
+    max-height: 92vh; border-radius: 20px 20px 0 0;
+    animation: sheetUp .28s cubic-bezier(.2,.8,.2,1);
+  }
+  .modal-foot {
+    position: sticky; bottom: 0; z-index: 3;
+    background: var(--panel-2);
+    border-top: 1px solid var(--line-soft);
+    padding: 14px 18px calc(14px + env(safe-area-inset-bottom));
+    margin-top: 6px;
+  }
+  .modal-foot:not(.spread) > button { flex: 1; justify-content: center; min-height: 46px; }
+}
+@keyframes sheetUp { from { opacity: .4; transform: translateY(100%); } to { opacity: 1; transform: none; } }
