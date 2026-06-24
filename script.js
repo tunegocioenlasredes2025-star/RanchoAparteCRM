@@ -72,13 +72,64 @@ const Store = {
   },
 };
 
+/* ----- Supabase: fuente de verdad de reservas/clientes/eventos -----
+   Mantenemos una copia en memoria (MEM) para que todo el render siga
+   siendo síncrono; cada cambio se escribe en la nube (write-through). */
+const sbc = window.supabase.createClient(window.SUPA_URL, window.SUPA_KEY);
+const MEM = { reservas: [], clientes: [], eventos: [] };
+const KNOWN = { reservas: new Set(), clientes: new Set(), eventos: new Set() };
+
+const MAP = {
+  reservas: {
+    toRow: r => ({ id: r.id, nombre: r.nombre, telefono: r.telefono || null, court_id: r.courtId,
+      fecha: r.fecha, hora: r.hora, duracion: Number(r.duracion) || 1, precio: Number(r.precio) || 0,
+      sena: Number(r.sena) || 0, estado: r.estado || 'Pendiente', obs: r.obs || null,
+      origen: r.origen || 'admin', pago_estado: r.pagoEstado || 'pendiente',
+      comprobante_url: r.comprobanteUrl || null, hold_expira: r.holdExpira || null }),
+    fromRow: x => ({ id: x.id, nombre: x.nombre, telefono: x.telefono || '', courtId: x.court_id,
+      fecha: x.fecha, hora: (x.hora || '').slice(0, 5), duracion: Number(x.duracion), precio: Number(x.precio),
+      sena: Number(x.sena || 0), estado: x.estado, obs: x.obs || '', origen: x.origen,
+      pagoEstado: x.pago_estado, comprobanteUrl: x.comprobante_url, holdExpira: x.hold_expira, createdAt: x.created_at }),
+  },
+  clientes: {
+    toRow: c => ({ id: c.id, nombre: c.nombre, telefono: c.telefono || null, email: c.email || null, notas: c.obs || null }),
+    fromRow: x => ({ id: x.id, nombre: x.nombre, telefono: x.telefono || '', email: x.email || '', obs: x.notas || '', createdAt: x.created_at }),
+  },
+  eventos: {
+    toRow: e => ({ id: e.id, cliente: e.cliente, telefono: e.telefono || null, tipo: e.tipo,
+      fecha: e.fecha || null, hora: e.hora || null, notas: e.obs || null, personas: e.personas || null }),
+    fromRow: x => ({ id: x.id, tipo: x.tipo, cliente: x.cliente, telefono: x.telefono || '', personas: x.personas || '',
+      fecha: x.fecha, hora: x.hora || '', obs: x.notas || '', createdAt: x.created_at }),
+  },
+};
+
+async function loadAll() {
+  for (const t of ['reservas', 'clientes', 'eventos']) {
+    const { data, error } = await sbc.from(t).select('*');
+    if (error) { console.error('load ' + t, error); continue; }
+    MEM[t] = (data || []).map(MAP[t].fromRow);
+    KNOWN[t] = new Set(MEM[t].map(r => r.id));
+  }
+}
+
+async function pushTable(t) {
+  const rows = MEM[t].map(MAP[t].toRow);
+  const curIds = new Set(rows.map(r => r.id));
+  const toDelete = [...KNOWN[t]].filter(id => !curIds.has(id));
+  try {
+    if (rows.length) { const { error } = await sbc.from(t).upsert(rows); if (error) throw error; }
+    if (toDelete.length) { const { error } = await sbc.from(t).delete().in('id', toDelete); if (error) throw error; }
+    KNOWN[t] = curIds;
+  } catch (e) { console.error('sync ' + t, e); if (window.toast) toast('No se pudo guardar en la nube', 'err'); }
+}
+
 const db = {
-  get reservas()  { return Store.read('reservas', []); },
-  set reservas(v) { Store.write('reservas', v); },
-  get clientes()  { return Store.read('clientes', []); },
-  set clientes(v) { Store.write('clientes', v); },
-  get eventos()   { return Store.read('eventos', []); },
-  set eventos(v)  { Store.write('eventos', v); },
+  get reservas()  { return MEM.reservas; },
+  set reservas(v) { MEM.reservas = v; pushTable('reservas'); },
+  get clientes()  { return MEM.clientes; },
+  set clientes(v) { MEM.clientes = v; pushTable('clientes'); },
+  get eventos()   { return MEM.eventos; },
+  set eventos(v)  { MEM.eventos = v; pushTable('eventos'); },
   get config()    { return Object.assign({}, DEFAULT_CONFIG, Store.read('config', {})); },
   set config(v)   { Store.write('config', v); },
 };
@@ -1009,6 +1060,11 @@ function openReservaForm(id, prefill = {}) {
       <button class="modal-close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
+      ${editing && r.origen === 'web' ? `
+        <div class="web-note">
+          <div class="wn-txt"><strong>Reserva online</strong><span>El cliente la pidió desde la web. ${r.comprobanteUrl ? 'Revisá el comprobante y cargá la seña para confirmar.' : ''}</span></div>
+          ${r.comprobanteUrl ? `<a class="btn-soft btn-sm" href="${r.comprobanteUrl}" target="_blank" rel="noopener">Ver comprobante</a>` : ''}
+        </div>` : ''}
       <form id="resForm" novalidate>
         <div class="field-row">
           <div class="field" id="f-nombre"><label>Nombre <span class="req">*</span></label><input name="nombre" value="${esc(r.nombre || '')}" placeholder="Ej: Juan Pérez" autocomplete="off"><div class="field-err">Ingresá el nombre</div></div>
@@ -1408,17 +1464,48 @@ function doSeed() {
   toast('Datos de ejemplo cargados');
 }
 
-// Arranque
-function init() {
-  // Primera vez: cargar demo automáticamente
-  if (!localStorage.getItem(`${APP}_init`)) {
-    doSeed();
-    localStorage.setItem(`${APP}_init`, '1');
-  }
+// Arranque con login del dueño + datos en la nube
+function startApp() {
   navigate('dashboard');
-  // Redibuja gráficos al rotar/redimensionar
   let rt;
   window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => navigate(currentView), 200); });
+}
+
+function showLogin() { const h = document.getElementById('loginHost'); if (h) h.hidden = false; }
+function hideLogin() { const h = document.getElementById('loginHost'); if (h) h.hidden = true; }
+
+async function boot() {
+  const { data: { session } } = await sbc.auth.getSession();
+  if (!session) { showLogin(); return; }
+  await loadAll();
+  hideLogin();
+  startApp();
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginErr');
+  const btn = document.getElementById('loginBtn');
+  errEl.textContent = ''; btn.disabled = true; btn.textContent = 'Entrando…';
+  const { error } = await sbc.auth.signInWithPassword({ email, password: pass });
+  if (error) { errEl.textContent = 'Email o contraseña incorrectos.'; btn.disabled = false; btn.textContent = 'Entrar'; return; }
+  await loadAll();
+  hideLogin();
+  btn.disabled = false; btn.textContent = 'Entrar';
+  startApp();
+}
+
+async function doLogout() {
+  await sbc.auth.signOut();
+  location.reload();
+}
+
+function init() {
+  document.getElementById('loginBtn')?.addEventListener('click', doLogin);
+  document.getElementById('loginPass')?.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  document.getElementById('logoutBtn')?.addEventListener('click', doLogout);
+  boot();
 }
 
 document.addEventListener('DOMContentLoaded', init);
